@@ -219,16 +219,17 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { getFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig
-        = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94",
-        measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); async function guardarMoto() { const inputId = document.getElementById("idMoto"); const inputNombre = document.getElementById("nombreMoto");
-        const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); const idValor = inputId.value.trim(); const nombreValor = inputNombre.value.trim(); const tipoValor = inputTipo.value.trim();
-        const cilindradaValor = inputCilindrada.value.trim(); if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { alert("Por favor, llena TODOS los campos obligatorios."); return; } try { const q = query(collection(db, "motos"), where("id",
-        "==", idValor)); const querySnapshot = await getDocs(q); if (!querySnapshot.empty) { alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); return; } await addDoc(collection(db, "motos"), { id: idValor, nombre: nombreValor,
-        tipo: tipoValor, cilindrada: cilindradaValor }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error);
-        } } onSnapshot(collection(db, "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
-        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) => { html
-        += `
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; // Añadimos 'initializeFirestore' para poder meter configuraciones personalizadas de red import { initializeFirestore, collection, addDoc, onSnapshot, query, where,
+        getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket:
+        "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94", measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); // CORRECCIÓN AQUÍ: Forzamos el uso de Long
+        Polling para evitar bloqueos de WebSockets en redes restrictivas externas const db = initializeFirestore(app, { experimentalForceLongPolling: true }); async function guardarMoto() { const inputId = document.getElementById("idMoto"); const inputNombre
+        = document.getElementById("nombreMoto"); const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); const idValor = inputId.value.trim(); const nombreValor = inputNombre.value.trim();
+        const tipoValor = inputTipo.value.trim(); const cilindradaValor = inputCilindrada.value.trim(); if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { alert("Por favor, llena TODOS los campos obligatorios."); return; } try { const q
+        = query(collection(db, "motos"), where("id", "==", idValor)); const querySnapshot = await getDocs(q); if (!querySnapshot.empty) { alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); return; } await addDoc(collection(db, "motos"),
+        { id: idValor, nombre: nombreValor, tipo: tipoValor, cilindrada: cilindradaValor }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error
+        al guardar:", error); alert("Error al guardar en la base de datos."); } } onSnapshot(collection(db, "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
+        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => { const idA = parseInt(a.id) || 0; const idB = parseInt(b.id) || 0; return
+        idA - idB; }); motosLista.forEach((m) => { html += `
         <div class="moto-item">
             <b>ID:</b> ${m.id || 'N/A'}<br>
             <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
