@@ -1,21 +1,90 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>MI PRIMERA PAGINA WEB - MOTOS</title>
     <style>
-        body { background: black; color: white; font-family: sans-serif; margin: 20px; }
-        .light-mode { background: linear-gradient(180deg, black, navy); color: white; }
-        #boton { width: 60px; height: 50px; font-size: 15px; border-radius: 15px; background: yellowgreen; cursor: pointer; border: none; }
-        .contenedor { max-width: 450px; margin: auto; padding: 20px; border: 2px solid cyan; border-radius: 10px; background: rgba(0, 0, 0, 0.7); }
-        input { width: 95%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: none; box-sizing: border-box; }
-        .btnBD { width: 100%; padding: 10px; cursor: pointer; background: linear-gradient(45deg, black, navy); color: white; border: 2px solid cyan; border-radius: 5px; }
-        .moto-item { background: rgba(255, 255, 255, 0.1); margin-top: 10px; padding: 10px; border-left: 5px solid cyan; border-radius: 5px; text-align: left; }
-        table { border-collapse: collapse; margin: auto; text-align: center; background: rgba(255, 255, 255, 0.05); }
-        th, td { border: 2px solid cyan; padding: 10px; }
-        img { max-width: 100%; height: auto; }
+        body {
+            background: black;
+            color: white;
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        
+        .light-mode {
+            background: linear-gradient(180deg, black, navy);
+            color: white;
+        }
+        
+        #boton {
+            width: 60px;
+            height: 50px;
+            font-size: 15px;
+            border-radius: 15px;
+            background: yellowgreen;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .contenedor {
+            max-width: 450px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid cyan;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        input {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+            color: black;
+        }
+        
+        .btnBD {
+            width: 100%;
+            padding: 10px;
+            cursor: pointer;
+            background: linear-gradient(45deg, black, navy);
+            color: white;
+            border: 2px solid cyan;
+            border-radius: 5px;
+        }
+        
+        .moto-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+            padding: 10px;
+            border-left: 5px solid cyan;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        table {
+            border-collapse: collapse;
+            margin: auto;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        th,
+        td {
+            border: 2px solid cyan;
+            padding: 10px;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
+
 <body>
 
     <div style="text-align:center; margin-bottom: 20px;">
@@ -131,11 +200,11 @@
         </button>
 
         <h3>REGISTROS:</h3>
-        <div id="resultado">Cargando base de datos...</div>
+        <div id="resultado">Cargando base de datos o esperando servidor local...</div>
     </div>
 
     <div style="text-align:center; margin-top: 20px; margin-bottom: 40px;">
-        <button id="btnMensaje" style="padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">Presióname 😎</button>
+        <button id="btnMensaje" style="padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; color: black;">Presióname 😎</button>
     </div>
 
     <script>
@@ -150,99 +219,25 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { initializeFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-        const firebaseConfig = { 
-            apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", 
-            authDomain: "motobase-d46ea.firebaseapp.com", 
-            projectId: "motobase-d46ea", 
-            storageBucket: "motobase-d46ea.firebasestorage.app", 
-            messagingSenderId: "21356188669", 
-            appId: "1:21356188669:web:7175bf67161b976aa7ff94", 
-            measurementId: "G-W7F29T9BHY" 
-        }; 
-        
-        const app = initializeApp(firebaseConfig); 
-        
-        const db = initializeFirestore(app, {
-            experimentalForceLongPolling: true
-        });
-
-        async function guardarMoto() { 
-            const inputId = document.getElementById("idMoto"); 
-            const inputNombre = document.getElementById("nombreMoto"); 
-            const inputTipo = document.getElementById("tipoMoto"); 
-            const inputCilindrada = document.getElementById("cilindradaMoto"); 
-
-            const idValor = inputId.value.trim(); 
-            const nombreValor = inputNombre.value.trim();
-            const tipoValor = inputTipo.value.trim(); 
-            const cilindradaValor = inputCilindrada.value.trim(); 
-
-            if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { 
-                alert("Por favor, llena TODOS los campos obligatorios."); 
-                return; 
-            } 
-
-            try { 
-                const q = query(collection(db, "motos"), where("id", "==", idValor)); 
-                const querySnapshot = await getDocs(q); 
-
-                if (!querySnapshot.empty) { 
-                    alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); 
-                    return; 
-                } 
-
-                await addDoc(collection(db, "motos"), { 
-                    id: idValor, 
-                    nombre: nombreValor, 
-                    tipo: tipoValor, 
-                    cilindrada: cilindradaValor
-                }); 
-
-                alert("¡Moto registrada con éxito! 🚀"); 
-                
-                inputId.value = ""; 
-                inputNombre.value = ""; 
-                inputTipo.value = ""; 
-                inputCilindrada.value = ""; 
-
-            } catch (error) { 
-                console.error("Error al guardar:", error); 
-            } 
-        } 
-
-        onSnapshot(collection(db, "motos"), (snapshot) => { 
-            let html = ""; 
-            if (snapshot.empty) { 
-                html = "<p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; 
-            } else { 
-                let motosLista = []; 
-                snapshot.forEach((doc) => { 
-                    motosLista.push(doc.data()); 
-                }); 
-
-                motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); 
-
-                motosLista.forEach((m) => { 
-                    html += `
-                    <div class="moto-item">
-                        <b>ID:</b> ${m.id || 'N/A'}<br>
-                        <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
-                        <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
-                        <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
-                    </div>
-                    `; 
-                }); 
-            } 
-            document.getElementById("resultado").innerHTML = html; 
-        }, (error) => { 
-            console.error(error); 
-            document.getElementById("resultado").innerHTML = "<p style='color: red;'>Error de conexión con Firestore.</p>"; 
-        }); 
-
-        document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { initializeFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId:
+        "1:21356188669:web:7175bf67161b976aa7ff94", measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = initializeFirestore(app, { experimentalForceLongPolling: true }); async function guardarMoto() { const inputId =
+        document.getElementById("idMoto"); const inputNombre = document.getElementById("nombreMoto"); const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); const idValor = inputId.value.trim();
+        const nombreValor = inputNombre.value.trim(); const tipoValor = inputTipo.value.trim(); const cilindradaValor = inputCilindrada.value.trim(); if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { alert("Por favor, llena TODOS los campos
+        obligatorios."); return; } try { const q = query(collection(db, "motos"), where("id", "==", idValor)); const querySnapshot = await getDocs(q); if (!querySnapshot.empty) { alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`);
+        return; } await addDoc(collection(db, "motos"), { id: idValor, nombre: nombreValor, tipo: tipoValor, id: idValor, // Mantenemos compatibilidad con tu estructura original cilindrada: cilindradaValor }); alert("¡Moto registrada con éxito! 🚀");
+        inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error); alert("Hubo un error al guardar. Revisa la consola."); } } onSnapshot(collection(db, "motos"),
+        (snapshot) => { let html = ""; if (snapshot.empty) { html = "
+        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) => { html
+        += `
+        <div class="moto-item">
+            <b>ID:</b> ${m.id || 'N/A'}<br>
+            <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
+            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
+            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
+        </div>
+        `; }); } document.getElementById("resultado").innerHTML = html; }, (error) => { console.error(error); document.getElementById("resultado").innerHTML = "
+        <p style='color: red;'>Error de conexión con Firestore o restricciones de CORS local.</p>"; }); document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
     </script>
 
 </body>
