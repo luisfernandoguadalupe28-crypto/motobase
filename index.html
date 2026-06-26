@@ -191,24 +191,100 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig = { apiKey:
-        "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94",
-        measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); // Guardar Moto con validaciones y el ID que escribe el usuario async function guardarMoto() { const inputId = document.getElementById("idMoto");
-        const inputNombre = document.getElementById("nombreMoto"); const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); // VALIDACIÓN: Todos los campos, incluido el ID manual, son estrictamente
-        obligatorios if (!inputId.value.trim() || !inputNombre.value.trim() || !inputTipo.value.trim() || !inputCilindrada.value.trim()) { alert("Por favor, llena TODOS los campos obligatorios antes de guardar."); return; } try { // Guarda en Firebase
-        usando el ID escrito por el usuario await addDoc(collection(db, "motos"), { id: inputId.value, nombre: inputNombre.value, tipo: inputTipo.value, cilindrada: inputCilindrada.value }); alert("¡Moto registrada con éxito en Firebase Cloud! 🚀"); inputId.value
-        = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error); alert("Hubo un error al guardar. Revisa la conexión o las reglas de Firebase."); } } // Renderizado en
-        tiempo real ordenado por ID numérico en minúsculas onSnapshot(collection(db, "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
-        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); // Ordenar automáticamente la lista de menor a mayor usando el ID que ingresa el usuario motosLista.sort((a,
-        b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) => { html += `
-        <div class="moto-item">
-            <b>ID:</b> ${m.id || 'N/A'}<br>
-            <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
-            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
-            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
-        </div>
-        `; }); } document.getElementById("resultado").innerHTML = html; }, (error) => { console.error("Error en onSnapshot:", error); document.getElementById("resultado").innerHTML = "
-        <p style='color: red;'>Error de permisos. Asegúrate de poner 'allow read, write: if true;' en las Reglas de Firebase.</p>"; }); document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", 
+            authDomain: "motobase-d46ea.firebaseapp.com", 
+            projectId: "motobase-d46ea", 
+            storageBucket: "motobase-d46ea.firebasestorage.app", 
+            messagingSenderId: "21356188669", 
+            appId: "1:21356188669:web:7175bf67161b976aa7ff94", 
+            measurementId: "G-W7F29T9BHY" 
+        }; 
+        
+        const app = initializeApp(firebaseConfig); 
+        const db = getFirestore(app); 
+
+        async function guardarMoto() { 
+            const inputId = document.getElementById("idMoto"); 
+            const inputNombre = document.getElementById("nombreMoto"); 
+            const inputTipo = document.getElementById("tipoMoto"); 
+            const inputCilindrada = document.getElementById("cilindradaMoto"); 
+
+            const idValor = inputId.value.trim(); 
+            const nombreValor = inputNombre.value.trim();
+            const tipoValor = inputTipo.value.trim(); 
+            const cilindradaValor = inputCilindrada.value.trim(); 
+
+            if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { 
+                alert("Por favor, llena TODOS los campos obligatorios."); 
+                return; 
+            } 
+
+            try { 
+                // VALIDACIÓN DE DUPLICADOS: Busca si ya hay un documento con ese ID 
+                const q = query(collection(db, "motos"), where("id", "==", idValor)); 
+                const querySnapshot = await getDocs(q); 
+
+                if (!querySnapshot.empty) { 
+                    alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); 
+                    return; 
+                } 
+
+                // Si no está repetido, procede a guardar 
+                await addDoc(collection(db, "motos"), { 
+                    id: idValor, 
+                    nombre: nombreValor, 
+                    tipo: tipoValor, 
+                    cilindrada: cilindradaValor 
+                }); 
+
+                alert("¡Moto registrada con éxito! 🚀"); 
+                
+                inputId.value = ""; 
+                inputNombre.value = ""; 
+                inputTipo.value = ""; 
+                inputCilindrada.value = ""; 
+
+            } catch (error) { 
+                console.error("Error al guardar:", error); 
+            } 
+        } 
+
+        // Leer datos en tiempo real 
+        onSnapshot(collection(db, "motos"), (snapshot) => { 
+            let html = ""; 
+            if (snapshot.empty) { 
+                html = "<p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; 
+            } else { 
+                let motosLista = []; 
+                snapshot.forEach((doc) => { 
+                    motosLista.push(doc.data()); 
+                }); 
+
+                // Ordenar por ID numérico
+                motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); 
+
+                motosLista.forEach((m) => { 
+                    html += `
+                    <div class="moto-item">
+                        <b>ID:</b> ${m.id || 'N/A'}<br>
+                        <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
+                        <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
+                        <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
+                    </div>
+                    `; 
+                }); 
+            } 
+            document.getElementById("resultado").innerHTML = html; 
+        }, (error) => { 
+            console.error(error); 
+            document.getElementById("resultado").innerHTML = "<p style='color: red;'>Error de conexión con Firestore.</p>"; 
+        }); 
+
+        document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
     </script>
 
 </body>
