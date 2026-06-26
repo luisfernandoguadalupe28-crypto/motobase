@@ -153,6 +153,34 @@
             <td>Deportiva</td>
             <td><img src="https://tse4.mm.bing.net/th/id/OIP.BRJsEv-Dlvsn811dtIgT7AHaEU?r=0&cb=thfvnextfalcon2&w=2014&h=1174&rs=1&pid=ImgDetMain&o=7&rm=3" width="250" alt="Honda CBR 600"></td>
         </tr>
+        <tr>
+            <td>Kawasaki Ninja ZX-10R</td>
+            <td>299 km/h</td>
+            <td>998cc</td>
+            <td>Deportiva</td>
+            <td><img src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=500&auto=format&fit=crop" width="250" alt="Kawasaki Ninja"></td>
+        </tr>
+        <tr>
+            <td>Suzuki Hayabusa</td>
+            <td>312 km/h</td>
+            <td>1340cc</td>
+            <td>Hypersport</td>
+            <td><img src="https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=500&auto=format&fit=crop" width="250" alt="Suzuki Hayabusa"></td>
+        </tr>
+        <tr>
+            <td>Harley-Davidson Iron 883</td>
+            <td>175 km/h</td>
+            <td>883cc</td>
+            <td>Custom / Chopper</td>
+            <td><img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=500&auto=format&fit=crop" width="250" alt="Harley-Davidson"></td>
+        </tr>
+        <tr>
+            <td>Vespa Primavera</td>
+            <td>95 km/h</td>
+            <td>150cc</td>
+            <td>Scooter</td>
+            <td><img src="https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?q=80&w=500&auto=format&fit=crop" width="250" alt="Vespa"></td>
+        </tr>
     </table>
 
     <hr style="border: 1px solid cyan; margin-top: 30px;">
@@ -191,100 +219,24 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-        const firebaseConfig = { 
-            apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", 
-            authDomain: "motobase-d46ea.firebaseapp.com", 
-            projectId: "motobase-d46ea", 
-            storageBucket: "motobase-d46ea.firebasestorage.app", 
-            messagingSenderId: "21356188669", 
-            appId: "1:21356188669:web:7175bf67161b976aa7ff94", 
-            measurementId: "G-W7F29T9BHY" 
-        }; 
-        
-        const app = initializeApp(firebaseConfig); 
-        const db = getFirestore(app); 
-
-        async function guardarMoto() { 
-            const inputId = document.getElementById("idMoto"); 
-            const inputNombre = document.getElementById("nombreMoto"); 
-            const inputTipo = document.getElementById("tipoMoto"); 
-            const inputCilindrada = document.getElementById("cilindradaMoto"); 
-
-            const idValor = inputId.value.trim(); 
-            const nombreValor = inputNombre.value.trim();
-            const tipoValor = inputTipo.value.trim(); 
-            const cilindradaValor = inputCilindrada.value.trim(); 
-
-            if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { 
-                alert("Por favor, llena TODOS los campos obligatorios."); 
-                return; 
-            } 
-
-            try { 
-                // VALIDACIÓN DE DUPLICADOS: Busca si ya hay un documento con ese ID 
-                const q = query(collection(db, "motos"), where("id", "==", idValor)); 
-                const querySnapshot = await getDocs(q); 
-
-                if (!querySnapshot.empty) { 
-                    alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); 
-                    return; 
-                } 
-
-                // Si no está repetido, procede a guardar 
-                await addDoc(collection(db, "motos"), { 
-                    id: idValor, 
-                    nombre: nombreValor, 
-                    tipo: tipoValor, 
-                    cilindrada: cilindradaValor 
-                }); 
-
-                alert("¡Moto registrada con éxito! 🚀"); 
-                
-                inputId.value = ""; 
-                inputNombre.value = ""; 
-                inputTipo.value = ""; 
-                inputCilindrada.value = ""; 
-
-            } catch (error) { 
-                console.error("Error al guardar:", error); 
-            } 
-        } 
-
-        // Leer datos en tiempo real 
-        onSnapshot(collection(db, "motos"), (snapshot) => { 
-            let html = ""; 
-            if (snapshot.empty) { 
-                html = "<p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; 
-            } else { 
-                let motosLista = []; 
-                snapshot.forEach((doc) => { 
-                    motosLista.push(doc.data()); 
-                }); 
-
-                // Ordenar por ID numérico
-                motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); 
-
-                motosLista.forEach((m) => { 
-                    html += `
-                    <div class="moto-item">
-                        <b>ID:</b> ${m.id || 'N/A'}<br>
-                        <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
-                        <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
-                        <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
-                    </div>
-                    `; 
-                }); 
-            } 
-            document.getElementById("resultado").innerHTML = html; 
-        }, (error) => { 
-            console.error(error); 
-            document.getElementById("resultado").innerHTML = "<p style='color: red;'>Error de conexión con Firestore.</p>"; 
-        }); 
-
-        document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { getFirestore, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig
+        = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94",
+        measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); async function guardarMoto() { const inputId = document.getElementById("idMoto"); const inputNombre = document.getElementById("nombreMoto");
+        const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); const idValor = inputId.value.trim(); const nombreValor = inputNombre.value.trim(); const tipoValor = inputTipo.value.trim();
+        const cilindradaValor = inputCilindrada.value.trim(); if (!idValor || !nombreValor || !tipoValor || !cilindradaValor) { alert("Por favor, llena TODOS los campos obligatorios."); return; } try { const q = query(collection(db, "motos"), where("id",
+        "==", idValor)); const querySnapshot = await getDocs(q); if (!querySnapshot.empty) { alert(`El ID "${idValor}" ya existe. Por favor, escribe uno diferente.`); return; } await addDoc(collection(db, "motos"), { id: idValor, nombre: nombreValor,
+        tipo: tipoValor, cilindrada: cilindradaValor }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error);
+        } } onSnapshot(collection(db, "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
+        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) => { html
+        += `
+        <div class="moto-item">
+            <b>ID:</b> ${m.id || 'N/A'}<br>
+            <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
+            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
+            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
+        </div>
+        `; }); } document.getElementById("resultado").innerHTML = html; }, (error) => { console.error(error); document.getElementById("resultado").innerHTML = "
+        <p style='color: red;'>Error de conexión con Firestore.</p>"; }); document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
     </script>
 
 </body>
