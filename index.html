@@ -227,7 +227,6 @@
     <h2 style="text-align:center;">🏍️ BASE DE DATOS DE MOTOS (FIREBASE)</h2>
 
     <div class="contenedor">
-        <input type="text" id="idMoto" placeholder="ID (OBLIGATORIO)">
         <input type="text" id="nombreMoto" placeholder="NOMBRE (OBLIGATORIO)">
         <input type="text" id="tipoMoto" placeholder="TIPO (OBLIGATORIO)">
         <input type="text" id="cilindradaMoto" placeholder="CILINDRADA (OBLIGATORIO)">
@@ -251,85 +250,29 @@
         boton.onclick = function() {
             document.body.classList.toggle("light-mode");
         }
-        
+
         document.getElementById("btnMensaje").onclick = function() {
             alert("¡Las motos son geniales! 🏍️💨");
         }
     </script>
 
     <script type="module">
-        // Enlaces oficiales de alta velocidad CDN actualizados a la versión v10.13.0
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-        // Tus credenciales de MOTOBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo",
-            authDomain: "motobase-d46ea.firebaseapp.com",
-            projectId: "motobase-d46ea",
-            storageBucket: "motobase-d46ea.firebasestorage.app",
-            messagingSenderId: "21356188669",
-            appId: "1:21356188669:web:7175bf67161b976aa7ff94",
-            measurementId: "G-W7F29T9BHY"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Guardar Moto en Firebase
-        async function guardarMoto() {
-            const inputId = document.getElementById("idMoto");
-            const inputNombre = document.getElementById("nombreMoto");
-            const inputTipo = document.getElementById("tipoMoto");
-            const inputCilindrada = document.getElementById("cilindradaMoto");
-
-            if (!inputId.value || !inputNombre.value || !inputTipo.value || !inputCilindrada.value) {
-                alert("Por favor, llena TODOS los campos antes de guardar.");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, "motos"), {
-                    id: inputId.value,
-                    nombre: inputNombre.value,
-                    tipo: inputTipo.value,
-                    cilindrada: inputCilindrada.value
-                });
-
-                alert("¡Moto registrada con éxito en Firebase Cloud! 🚀");
-                
-                inputId.value = "";
-                inputNombre.value = "";
-                inputTipo.value = "";
-                inputCilindrada.value = "";
-            } catch (error) {
-                console.error("Error al guardar:", error);
-                alert("Hubo un error al guardar. Verifica las reglas de Firestore.");
-            }
-        }
-
-        // Mostrar datos de Firebase en tiempo real
-        onSnapshot(collection(db, "motos"), (snapshot) => {
-            let html = "";
-            if (snapshot.empty) {
-                html = "<p style='color: gray;'>No hay registros guardados en la nube todavía.</p>";
-            } else {
-                snapshot.forEach((doc) => {
-                    const m = doc.data();
-                    html += `
-                        <div class="moto-item">
-                            <b>ID:</b> ${m.id || 'N/A'}<br>
-                            <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
-                            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
-                            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById("resultado").innerHTML = html;
-        });
-
-        document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig = { apiKey:
+        "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94",
+        measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); // Guardar Moto en Firebase con ID automático async function guardarMoto() { const inputNombre = document.getElementById("nombreMoto"); const
+        inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); // Valida si falta rellenar algún campo y lanza la alerta if (!inputNombre.value || !inputTipo.value || !inputCilindrada.value)
+        { alert("Por favor, llena TODOS los campos antes de guardar."); return; } // Generador de ID automático numérico secuencial/aleatorio irrepetible const idAutomatico = "MOTO-" + Date.now().toString().slice(-4) + "-" + Math.floor(100 + Math.random()
+        * 900); try { await addDoc(collection(db, "motos"), { id: idAutomatico, nombre: inputNombre.value, tipo: inputTipo.value, cilindrada: inputCilindrada.value }); alert("¡Moto registrada con éxito en Firebase Cloud! ID asignado: " + idAutomatico
+        + " 🚀"); inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error); alert("Hubo un error al guardar. Verifica las reglas de Firestore."); } } onSnapshot(collection(db,
+        "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
+        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { snapshot.forEach((doc) => { const m = doc.data(); html += `
+        <div class="moto-item">
+            <b>ID AUTOMÁTICO:</b> ${m.id || 'N/A'}<br>
+            <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
+            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
+            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}
+        </div>
+        `; }); } document.getElementById("resultado").innerHTML = html; }); document.getElementById("btnGuardar").addEventListener("click", guardarMoto);
     </script>
 
 </body>
