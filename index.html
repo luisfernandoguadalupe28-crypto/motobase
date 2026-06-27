@@ -234,10 +234,10 @@
             <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
             <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}<br>
         </div>`; }); } resDiv.innerHTML = html; }, (error) => { console.error("Error en Firebase Snapshot: ", error); resDiv.innerHTML = "
-        <p style='color: #ff9900;'>⚠️ Error de conexión. Recuerda configurar las Reglas (Rules) de tu Firestore en modo de prueba (`allow read, write: if true;`).</p>"; }); // Función guardar con los bloques try/catch perfectamente cerrados async function guardarMoto() { if(!inputId.value
-        || !inputNombre.value || !inputTipo.value || !inputCilindrada.value) { alert("Por favor, llena todos los campos obligatorios."); return; } try { await addDoc(collection(db, "motos"), { id: inputId.value, nombre: inputNombre.value, tipo: inputTipo.value,
-        disabled: false, cilindrada: inputCilindrada.value }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:",
-        error); alert("Error al guardar. Asegúrate de que las reglas de tu base de datos estén públicas."); } } btnGuardar.onclick = guardarMoto;
+        <p style='color: #ff9900;'>⚠️ Error de conexión. Recuerda configurar las Reglas (Rules) de tu Cloud Firestore.</p>"; }); // Función guardar con los bloques perfectamente cerrados async function guardarMoto() { if(!inputId.value || !inputNombre.value || !inputTipo.value
+        || !inputCilindrada.value) { alert("Por favor, llena todos los campos obligatorios."); return; } try { await addDoc(collection(db, "motos"), { id: inputId.value, nombre: inputNombre.value, tipo: inputTipo.value, disabled: false, cilindrada: inputCilindrada.value
+        }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:", error); alert("Error al guardar. Asegúrate de que las
+        reglas de tu base de datos estén públicas."); } } btnGuardar.onclick = guardarMoto;
     </script>
 </body>
 
