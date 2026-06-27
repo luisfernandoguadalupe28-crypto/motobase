@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>MI PRIMERA PAGINA WEB - MOTOS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏍️</text></svg>">
+
     <style>
         body {
             background: black;
@@ -219,14 +221,25 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"; const firebaseConfig
-        = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId: "1:21356188669:web:7175bf67161b976aa7ff94",
-        measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); // Función para cargar los datos manualmente sin dejar colgada la pantalla async function cargarMotos() { const resDiv = document.getElementById("resultado");
-        // Reloj de seguridad: si pasan 3.5 segundos, rompe la espera y avisa el problema const timeoutId = setTimeout(() => { if (resDiv.innerText.includes("Buscando base de datos")) { resDiv.innerHTML = "
-        <p style='color: #ff9900;'>⚠️ Tiempo de espera agotado. Revisa la pestaña 'Rules' de tu Firebase Firestore y cámbialas a modo público ('if true;').</p>"; } }, 3500); try { const querySnapshot = await getDocs(collection(db, "motos")); clearTimeout(timeoutId); // Si responde
-        a tiempo, apaga el reloj let html = ""; if (querySnapshot.empty) { html = "
-        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; querySnapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) =>
-        { html += `
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"; // SE AGREGÓ 'onSnapshot' AQUÍ PARA QUE LA ESCUCHA EN TIEMPO REAL FUNCIONE import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyA7-IqmeZoepWBGSKwrv2s2nsBvklh-aeo", authDomain: "motobase-d46ea.firebaseapp.com", projectId: "motobase-d46ea", storageBucket: "motobase-d46ea.firebasestorage.app", messagingSenderId: "21356188669", appId:
+        "1:21356188669:web:7175bf67161b976aa7ff94", measurementId: "G-W7F29T9BHY" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); // Captura de elementos de entrada const inputId = document.getElementById("idMoto"); const inputNombre
+        = document.getElementById("nombreMoto"); const inputTipo = document.getElementById("tipoMoto"); const inputCilindrada = document.getElementById("cilindradaMoto"); const btnGuardar = document.getElementById("btnGuardar"); const resDiv = document.getElementById("resultado");
+        // Escucha activa en tiempo real para traer los datos automáticamente onSnapshot(collection(db, "motos"), (snapshot) => { let html = ""; if (snapshot.empty) { html = "
+        <p style='color: gray;'>No hay registros guardados en la nube todavía.</p>"; } else { let motosLista = []; snapshot.forEach((doc) => { motosLista.push(doc.data()); }); motosLista.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0)); motosLista.forEach((m) => { html
+        += `
         <div class="moto-item">
             <b>ID:</b> ${m.id || 'N/A'}<br>
             <b>NOMBRE:</b> ${m.nombre || 'N/A'}<br>
+            <b>TIPO:</b> ${m.tipo || 'N/A'}<br>
+            <b>CILINDRADA:</b> ${m.cilindrada || 'N/A'}<br>
+        </div>`; }); } resDiv.innerHTML = html; }, (error) => { console.error("Error en Snapshot: ", error); resDiv.innerHTML = "
+        <p style='color: #ff9900;'>⚠️ Error de conexión. Revisa la pestaña 'Rules' (Reglas) de tu Firebase Firestore y cámbialas a modo de prueba (`allow read, write: if true;`).</p>"; }); // Función para guardar los datos al hacer clic en el botón GUARDAR async function guardarMoto()
+        { if(!inputId.value || !inputNombre.value || !inputTipo.value || !inputCilindrada.value) { alert("Por favor, llena todos los campos obligatorios."); return; } try { await addDoc(collection(db, "motos"), { id: inputId.value, nombre: inputNombre.value,
+        tipo: inputTipo.value, cilindrada: inputCilindrada.value }); alert("¡Moto registrada con éxito! 🚀"); inputId.value = ""; inputNombre.value = ""; inputTipo.value = ""; inputCilindrada.value = ""; } catch (error) { console.error("Error al guardar:",
+        error); alert("Error al guardar. Asegúrate de que las reglas de tu base de datos estén públicas."); } } // Asignar el evento click al botón guardar btnGuardar.onclick = guardarMoto;
+
+    </script>
+</body>
+
+</html>
